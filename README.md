@@ -109,5 +109,4 @@ Este é um projeto que implementa um **sistema de recomendação** para jogos de
 
 ## 👨‍💻 Desenvolvido Por
 
-Este projeto foi desenvolvido por [marcosfilho95]. Inspirado no universo dos jogos de tabuleiro nos conceitos de GRAFOS aprendidos na UNIFOR.
-
+Este projeto foi criado por [marcosfilho95](https://github.com/marcosfilho95), inspirado no universo dos jogos de tabuleiro e nos conceitos de **GRAFOS** aprendidos na **UNIFOR**.
