@@ -1,0 +1,179 @@
+/* Estilo Global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f1f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url(/img/360_F_898537626_zMK6vYiQDJslALMJoF4DNY4vglRQKXWt.jpg); /* Fundo com tema de jogos */
+    background-size: cover;
+    background-position: center;
+    color: #333;
+    padding: 20px;
+}
+
+/* Container principal */
+.container {
+    max-width: 900px;
+    width: 100%;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.9); /* Fundo branco translúcido */
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo do cabeçalho */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;  /* Adiciona um pequeno espaçamento superior */
+}
+
+header img {
+    width: 170px;  /* Tamanho inicial do ícone */
+    height: auto;
+    margin-bottom: 15px;
+    animation: zoomInOut 3s infinite;  /* Animação de zoom contínua */
+    margin-top: 10px;  /* Garantir que o ícone tenha espaçamento adequado do topo */
+}
+
+/* Animação de zoom (aumenta e diminui o ícone) */
+@keyframes zoomInOut {
+    0% {
+        transform: scale(1);  /* Tamanho normal */
+    }
+    50% {
+        transform: scale(1.2);  /* Aumenta o ícone */
+    }
+    100% {
+        transform: scale(1);  /* Retorna ao tamanho original */
+    }
+}
+
+h1 {
+    font-size: 2em;
+    color: #2c3e50;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2); /* Sombra no texto */
+}
+
+
+/* Estilo do seletor e botões */
+.input-container {
+    margin-bottom: 40px;
+    text-align: center;
+    display: flex;  /* Organiza os elementos em linha */
+    justify-content: center;  /* Centraliza os itens horizontalmente */
+    align-items: center;  /* Alinha verticalmente os itens */
+}
+
+select, button {
+    padding: 12px;
+    margin: 8px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+select {
+    width: 70%;  /* Ajuste a largura do seletor */
+    background-color: #f2f3f5;
+    color: #333;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-right: 15px;  /* Espaço entre o seletor e o botão */
+}
+
+select:hover {
+    background-color: #e1e4e8;
+}
+
+button {
+    padding: 12px;
+    margin: 8px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+    background-color: #4CAF50; /* Verde vibrante */
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.1); /* Efeito de aumento ao passar o mouse */
+}
+
+button:active {
+    transform: scale(0.98); /* Efeito de clique */
+}
+
+/* Grafo */
+#cy {
+    height: 60vh;
+    width: 100%;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    margin-top: 30px;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo dos nós e arestas */
+.node {
+    background-color: #3498db; /* Azul */
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.node:hover {
+    background-color: #2980b9; /* Efeito ao passar o mouse */
+}
+
+.edge {
+    width: 3px;
+    line-color: #2980b9;
+    font-size: 14px;
+    font-family: 'Arial', sans-serif;
+    font-weight: normal;
+    color: #555;
+}
+
+/* Efeitos visuais gerais */
+h1, label {
+    font-family: 'Arial', sans-serif;
+    color: #2c3e50;
+}
+
+.container, button, select {
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.9em;
+    color: #777;
+}

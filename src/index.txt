@@ -1,0 +1,590 @@
+HTML
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Sistema de Recomendação de Jogos de Tabuleiro</title>
+
+  <!-- Link para o arquivo CSS -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Importar a biblioteca Vis.js -->
+  <script type="text/javascript" src="https://unpkg.com/vis-network@9.0.4/dist/vis-network.min.js"></script>
+
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Sistema de Recomendação de Jogos de Tabuleiro</h1>
+      <p>Escolha um jogo para ver recomendações baseadas nas categorias dos jogos.</p>
+    </header>
+
+    <section class="form-section">
+      <label for="gameSelect">Escolha um Jogo:</label>
+      <select id="gameSelect">
+        <option value="" disabled selected>Selecione um jogo</option>
+        <!-- As opções dos jogos serão adicionadas dinamicamente aqui -->
+      </select>
+      <button id="generateRecommendation">Gerar Recomendação</button>
+    </section>
+
+    <section class="graph-section">
+      <div id="network"></div>
+    </section>
+
+    <footer>
+      <p>&copy; 2024 Sistema de Recomendação de Jogos de Tabuleiro. Todos os direitos reservados.</p>
+    </footer>
+  </div>
+
+  <!-- Link para o arquivo JavaScript -->
+  <script src="index.js" type="text/javascript"></script>
+</body>
+</html>
+
+CSS
+
+/* Estilo geral da página */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 32px;
+  color: #333;
+}
+
+p {
+  font-size: 18px;
+  color: #666;
+}
+
+.form-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 18px;
+  color: #333;
+}
+
+select, button {
+  padding: 10px;
+  font-size: 16px;
+  margin-left: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background-color: #007BFF;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #777;
+}
+
+/* Estilo para a área de exibição do gráfico */
+.graph-section {
+  margin-top: 30px;
+  position: relative;
+}
+
+#network {
+  width: 100%;
+  height: 500px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.vis-network .vis-node {
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.vis-network .vis-edge {
+  color: #999;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+}
+
+.vis-network .vis-arrow {
+  fill: #007BFF;
+}
+
+js
+
+// Lista de jogos e categorias (Exemplo de jogos e suas categorias)
+const games = [
+  { name: 'Catan', categories: ['Strategy', 'Family'] },
+  { name: 'Ticket to Ride', categories: ['Family', 'Strategy'] },
+  { name: 'Pandemic', categories: ['Cooperative', 'Strategy'] },
+  { name: 'Wingspan', categories: ['Strategy', 'Nature'] },
+  { name: 'Terraforming Mars', categories: ['Strategy', 'Sci-Fi'] },
+  { name: '7 Wonders', categories: ['Strategy', 'Card Game'] },
+  { name: 'Gloomhaven', categories: ['Strategy', 'Adventure'] },
+  { name: 'Ark Nova', categories: ['Strategy', 'Sci-Fi'] },
+  { name: 'Brass: Birmingham', categories: ['Strategy', 'Economic'] }
+];
+
+// Função para popular o seletor de jogos
+function populateGameSelect() {
+  const gameSelect = document.getElementById('gameSelect');
+  games.forEach(game => {
+    const option = document.createElement('option');
+    option.value = game.name;
+    option.textContent = game.name;
+    gameSelect.appendChild(option);
+  });
+}
+
+// Função para calcular a recomendação com base nas categorias
+function getRecommendations(selectedGame) {
+  const game = games.find(game => game.name === selectedGame);
+  const recommendedGames = [];
+
+  games.forEach(otherGame => {
+    if (otherGame.name !== selectedGame) {
+      const commonCategories = game.categories.filter(category => 
+        otherGame.categories.includes(category)
+      );
+      if (commonCategories.length > 0) {
+        recommendedGames.push({ 
+          game: otherGame.name, 
+          commonCategories: commonCategories, 
+          weight: commonCategories.length
+        });
+      }
+    }
+  });
+
+  return recommendedGames;
+}
+
+// Função para gerar o grafo de recomendações
+function generateGraph(selectedGame) {
+  const recommendedGames = getRecommendations(selectedGame);
+
+  // Criando os dados para o grafo
+  const nodes = [
+    { id: selectedGame, label: selectedGame, color: 'green' } // Raiz
+  ];
+
+  const edges = [];
+  recommendedGames.forEach((recommendation, index) => {
+    const nodeId = recommendation.game;
+    nodes.push({
+      id: nodeId,
+      label: nodeId,
+      color: recommendation.weight === 3 ? 'red' :
+             recommendation.weight === 2 ? 'yellow' : 'blue'
+    });
+    edges.push({
+      from: selectedGame,
+      to: nodeId,
+      label: `Peso: ${recommendation.weight}`,
+      arrows: 'to'
+    });
+  });
+
+  // Configuração do grafo
+  const container = document.getElementById('network');
+  const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+  const options = {
+    nodes: {
+      shape: 'dot',
+      size: 20,
+    },
+    edges: {
+      smooth: {
+        type: 'continuous'
+      },
+      font: {
+        align: 'top'
+      }
+    },
+    physics: {
+      enabled: true
+    }
+  };
+
+  // Criando o grafo
+  const network = new vis.Network(container, data, options);
+}
+
+// Função de interação para gerar as recomendações ao clicar no botão
+document.getElementById('generateRecommendation').addEventListener('click', () => {
+  const selectedGame = document.getElementById('gameSelect').value;
+  if (selectedGame) {
+    generateGraph(selectedGame);
+  } else {
+    alert('Por favor, selecione um jogo.');
+  }
+});
+
+// Preenche o seletor com os jogos ao carregar a página
+window.onload = function() {
+  populateGameSelect();
+};
+
+
+------------------------------------------------------------------------------------------------------
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Sistema de Recomendação de Jogos de Tabuleiro</title>
+
+  <!-- Link para o arquivo CSS -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Importar a biblioteca Vis.js -->
+  <script type="text/javascript" src="https://unpkg.com/vis-network@9.0.4/dist/vis-network.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Sistema de Recomendação de Jogos de Tabuleiro</h1>
+      <p>Escolha um jogo para ver recomendações baseadas nas categorias dos jogos.</p>
+    </header>
+
+    <section class="form-section">
+      <label for="gameSelect">Escolha um Jogo:</label>
+      <select id="gameSelect">
+        <option value="" disabled selected>Selecione um jogo</option>
+        <!-- As opções dos jogos serão adicionadas dinamicamente aqui -->
+      </select>
+      <button id="generateRecommendation">Gerar Recomendação</button>
+    </section>
+
+    <section class="graph-section">
+      <div id="network"></div>
+    </section>
+
+    <footer>
+      <p>&copy; 2024 Sistema de Recomendação de Jogos de Tabuleiro. Todos os direitos reservados.</p>
+    </footer>
+  </div>
+
+  <!-- Corrigido o caminho para o arquivo JavaScript (src/index.js) -->
+  <script src="/src/index.js" type="text/javascript"></script>
+</body>
+</html>
+
+CSS
+
+/* Estilo geral da página */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  h1 {
+    font-size: 32px;
+    color: #333;
+  }
+  
+  p {
+    font-size: 18px;
+    color: #666;
+  }
+  
+  .form-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  label {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  select, button {
+    padding: 10px;
+    font-size: 16px;
+    margin-left: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  button {
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #777;
+  }
+  
+  /* Estilo para a área de exibição do gráfico */
+  .graph-section {
+    margin-top: 30px;
+    position: relative;
+  }
+  
+  #network {
+    width: 100%;
+    height: 500px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+  }
+  
+
+js
+
+// Lista de jogos e categorias (com os 10 primeiros, conforme solicitado)
+const games = [
+  {"name": "Gloomhaven", "categories": ["Adventure", "Cooperative", "Fantasy"]},
+    {"name": "Catan", "categories": ["Strategy", "Family", "Economic"]},
+    {"name": "Ticket to Ride", "categories": ["Strategy", "Family"]},
+    {"name": "Pandemic", "categories": ["Cooperative", "Strategy", "Family"]},
+    {"name": "7 Wonders", "categories": ["Strategy", "Card Game"]},
+    {"name": "Terraforming Mars", "categories": ["Strategy", "Economic", "Science Fiction"]},
+    {"name": "Wingspan", "categories": ["Strategy", "Nature", "Family"]},
+    {"name": "Brass: Birmingham", "categories": ["Strategy", "Economic", "Industrial"]},
+    {"name": "Ark Nova", "categories": ["Strategy", "Nature", "Economic"]},
+    {"name": "Azul", "categories": ["Family", "Abstract", "Tile Placement"]},
+    {"name": "Carcassonne", "categories": ["Strategy", "Tile Placement", "Family"]},
+    {"name": "Dixit", "categories": ["Family", "Storytelling", "Party"]},
+    {"name": "Scythe", "categories": ["Strategy", "Economic", "Area Control"]},
+    {"name": "Root", "categories": ["Strategy", "Area Control", "Asymmetric"]},
+    {"name": "Dominion", "categories": ["Card Game", "Deck Building"]},
+    {"name": "Everdell", "categories": ["Strategy", "Fantasy", "Card Game"]},
+    {"name": "Spirit Island", "categories": ["Cooperative", "Strategy", "Fantasy"]},
+    {"name": "Clank!", "categories": ["Adventure", "Deck Building", "Fantasy"]},
+    {"name": "The Crew", "categories": ["Cooperative", "Card Game", "Space"]},
+    {"name": "Tapestry", "categories": ["Strategy", "Civilization", "Economic"]},
+    {"name": "Patchwork", "categories": ["Abstract", "Family", "Tile Placement"]},
+    {"name": "Agricola", "categories": ["Strategy", "Farming", "Economic"]},
+    {"name": "Through the Ages", "categories": ["Strategy", "Civilization", "Economic"]},
+    {"name": "Great Western Trail", "categories": ["Strategy", "Economic", "Western"]},
+    {"name": "Twilight Struggle", "categories": ["Strategy", "War", "Political"]},
+    {"name": "Puerto Rico", "categories": ["Strategy", "Economic", "Colonial"]},
+    {"name": "Blood Rage", "categories": ["Strategy", "Fantasy", "Area Control"]},
+    {"name": "Viticulture", "categories": ["Strategy", "Economic", "Farming"]},
+    {"name": "Santorini", "categories": ["Abstract", "Strategy", "Family"]},
+    {"name": "Kingdomino", "categories": ["Family", "Tile Placement", "Strategy"]},
+    {"name": "Splendor", "categories": ["Strategy", "Card Game", "Economic"]},
+    {"name": "Love Letter", "categories": ["Card Game", "Deduction", "Party"]},
+    {"name": "Decrypto", "categories": ["Party", "Deduction", "Communication"]},
+    {"name": "Codenames", "categories": ["Party", "Word Game", "Deduction"]},
+    {"name": "Hive", "categories": ["Abstract", "Strategy"]},
+    {"name": "Betrayal at House on the Hill", "categories": ["Horror", "Adventure", "Cooperative"]},
+    {"name": "Sheriff of Nottingham", "categories": ["Bluffing", "Party", "Strategy"]},
+    {"name": "Risk", "categories": ["War", "Strategy", "Classic"]},
+    {"name": "Monopoly", "categories": ["Economic", "Family", "Classic"]},
+    {"name": "Clue", "categories": ["Deduction", "Family", "Classic"]},
+    {"name": "Chess", "categories": ["Abstract", "Classic", "Strategy"]},
+    {"name": "Checkers", "categories": ["Abstract", "Classic"]},
+    {"name": "Go", "categories": ["Abstract", "Strategy", "Classic"]},
+    {"name": "Backgammon", "categories": ["Classic", "Abstract", "Strategy"]},
+    {"name": "Pictionary", "categories": ["Party", "Drawing", "Family"]},
+    {"name": "Tikal", "categories": ["Strategy", "Exploration", "Economic"]},
+    {"name": "Camel Up", "categories": ["Family", "Betting", "Racing"]},
+    {"name": "Codebreaker", "categories": ["Deduction", "Classic"]},
+    {"name": "Small World", "categories": ["Fantasy", "Strategy", "Area Control"]},
+    {"name": "The Resistance", "categories": ["Bluffing", "Deduction", "Party"]},
+    {"name": "Nemesis", "categories": ["Horror", "Sci-Fi", "Adventure"]},
+    {"name": "Everdell", "categories": ["Strategy", "Fantasy", "Card Game"]},
+    {"name": "Concordia", "categories": ["Strategy", "Economic", "Resource Management"]},
+    {"name": "Pax Pamir", "categories": ["Strategy", "Political", "Economic"]},
+    {"name": "War of the Ring", "categories": ["Fantasy", "War", "Strategy"]},
+    {"name": "Arkham Horror", "categories": ["Horror", "Cooperative", "Fantasy"]},
+    {"name": "Descent", "categories": ["Fantasy", "Adventure", "Dungeon Crawler"]},
+    {"name": "Eclipse", "categories": ["Sci-Fi", "Strategy", "Economic"]},
+    {"name": "Galaxy Trucker", "categories": ["Sci-Fi", "Strategy", "Adventure"]},
+    {"name": "Star Realms", "categories": ["Deck Building", "Sci-Fi", "Card Game"]},
+    {"name": "Castles of Burgundy", "categories": ["Strategy", "Economic", "Tile Placement"]},
+    {"name": "Lords of Waterdeep", "categories": ["Strategy", "Fantasy", "Worker Placement"]},
+];
+
+// Função para popular o seletor de jogos
+function populateGameSelect() {
+  const gameSelect = document.getElementById('gameSelect');
+  games.forEach(game => {
+    const option = document.createElement('option');
+    option.value = game.name;
+    option.textContent = game.name;
+    gameSelect.appendChild(option);
+  });
+}
+
+// Função para calcular a recomendação com base nas categorias
+function getRecommendations(selectedGame) {
+  const game = games.find(game => game.name === selectedGame);
+  const recommendedGames = [];
+
+  games.forEach(otherGame => {
+    if (otherGame.name !== selectedGame) {
+      const commonCategories = game.categories.filter(category => 
+        otherGame.categories.includes(category)
+      );
+      if (commonCategories.length > 0) {
+        recommendedGames.push({ 
+          game: otherGame.name, 
+          commonCategories: commonCategories, 
+          weight: commonCategories.length
+        });
+      }
+    }
+  });
+
+  // Ordena as recomendações por peso (número de categorias) e pela posição no ranking
+  recommendedGames.sort((a, b) => {
+    const weightDifference = b.weight - a.weight;
+    if (weightDifference === 0) {
+      return games.indexOf(a) - games.indexOf(b);  // Menor índice -> maior prioridade (mais próximo do topo)
+    }
+    return weightDifference;
+  });
+
+  return recommendedGames.slice(0, 3);  // Seleciona apenas os 3 primeiros
+}
+
+// Função para gerar o grafo de recomendações (usando árvore)
+function generateGraph(selectedGame) {
+  const nodes = [
+    { id: selectedGame, label: selectedGame, color: 'green' }
+  ];
+  const edges = [];
+  let verticesCount = 1;  // Contador de vértices
+  const addedNodes = new Set([selectedGame]);  // Conjunto para rastrear nós adicionados
+
+  // Função recursiva para gerar a árvore
+  function addChildren(parent, level) {
+    if (verticesCount >= 20) return;  // Limite de 20 vértices
+
+    const recommendations = getRecommendations(parent);
+    recommendations.forEach(recommendation => {
+      if (verticesCount >= 20) return;  // Limite de 20 vértices
+
+      const nodeId = recommendation.game;
+      if (!addedNodes.has(nodeId)) {  // Adiciona o nó apenas se não foi adicionado
+        nodes.push({
+          id: nodeId,
+          label: nodeId,
+          color: recommendation.weight === 3 ? 'red' :
+                 recommendation.weight === 2 ? 'yellow' : 'blue'
+        });
+        edges.push({
+          from: parent,
+          to: nodeId,
+          label: `Peso: ${recommendation.weight} - Categorias: ${recommendation.commonCategories.join(', ')}`,
+          arrows: 'to'
+        });
+
+        addedNodes.add(nodeId);  // Marca o nó como adicionado
+        verticesCount++;
+        addChildren(nodeId, level + 1);  // Chama recursivamente para filhos
+      }
+    });
+  }
+
+  addChildren(selectedGame, 1);  // Inicia a árvore com o jogo selecionado
+
+  // Verificando se o grafo foi gerado corretamente
+  console.log("Nós:", nodes);
+  console.log("Arestas:", edges);
+
+  // Configuração do grafo
+  const container = document.getElementById('network');
+  const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+  const options = {
+    nodes: {
+      shape: 'dot',
+      size: 20,
+    },
+    edges: {
+      smooth: { type: 'continuous' },
+      font: { align: 'top' }
+    },
+    physics: { enabled: true }
+  };
+
+  // Criando o grafo
+  const network = new vis.Network(container, data, options);
+}
+
+// Função de interação para gerar as recomendações ao clicar no botão
+document.getElementById('generateRecommendation').addEventListener('click', () => {
+  const selectedGame = document.getElementById('gameSelect').value;
+  if (selectedGame) {
+    generateGraph(selectedGame);
+  } else {
+    alert('Por favor, selecione um jogo.');
+  }
+});
+
+// Preenche o seletor com os jogos ao carregar a página
+window.onload = function() {
+  populateGameSelect();
+};

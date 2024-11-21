@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Recomendações de Jogos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.22.0/dist/cytoscape.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <!-- Logo no título -->
+            <img src="/img/board-games-logo-colour-cmyk-1687979724.png" alt="Logo de Jogos" class="decorative-img">
+            <h1>Sistema de Recomendações de Jogos de Tabuleiro</h1>
+        </header>
+
+        <div class="input-container">
+            <label for="gameSelect">Escolha um Jogo:</label>
+            <select id="gameSelect">
+                <option value="">Selecione um jogo</option>
+                <!-- Jogos serão populados via JavaScript -->
+            </select>
+            <button id="generateRecommendation"><i class="fas fa-sync-alt"></i> Gerar Recomendações</button>
+        </div>
+
+        <div id="cy"></div> <!-- Grafo será renderizado aqui -->
+
+        <footer>
+            <p>Sistema de Recomendação de Jogos de Tabuleiro.</p>
+            <p>Copyright 2024 © MEG - Todos os direitos reservados</p>
+        </footer>
+    </div>
+
+    <script src="/src/index.js"></script>
+</body>
+
+</html>
