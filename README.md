@@ -104,22 +104,10 @@ Este é um projeto que implementa um **sistema de recomendação** para jogos de
 - **Recomendados**:
   - *Brass: Birmingham (Strategy, Economic, Industrial)*.
   - *Eclipse (Sci-Fi, Strategy, Economic)*.
----
-
-## ⚙️ Tecnologias Utilizadas
-
-- **HTML5**: Estrutura do projeto.
-- **CSS3**: Estilização da interface e layout do grafo.
-- **JavaScript**: Lógica do sistema de recomendações e manipulação do DOM.
-- **Cytoscape.js**: Biblioteca para renderização e interatividade do grafo.
-
----
 
 ---
 
 ## 👨‍💻 Desenvolvido Por
 
 Este projeto foi desenvolvido por [marcosfilho95]. Inspirado no universo dos jogos de tabuleiro nos conceitos de GRAFOS aprendidos na UNIFOR.
-
----
 
